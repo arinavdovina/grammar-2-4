@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FreshTeacher — Конструктор промтов по грамматике</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --rust:#C1502E;
+    --rust-dark:#9C3F22;
+    --rust-light:#E2714A;
+    --cream:#FBF3E7;
+    --beige:#F1E4CC;
+    --beige-dark:#E2CDA0;
+    --ink:#2E2418;
+    --ink-soft:#6E5D48;
+    --white:#FFFFFF;
+    --shadow: 0 4px 14px rgba(46,36,24,0.08);
+    --shadow-lg: 0 10px 30px rgba(46,36,24,0.14);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--cream);
+    color:var(--ink);
+    font-family:'Nunito', sans-serif;
+    line-height:1.5;
+  }
+  h1,h2,h3,.brand,.pill,button{
+    font-family:'Unbounded', sans-serif;
+  }
+  .wrap{
+    max-width:1080px;
+    margin:0 auto;
+    padding:28px 20px 80px;
+  }
+  header.site-header{
+    text-align:center;
+    margin-bottom:28px;
+  }
+  .brand{
+    display:inline-block;
+    background:var(--ink);
+    color:var(--cream);
+    font-size:13px;
+    letter-spacing:.04em;
+    padding:6px 16px;
+    border-radius:999px;
+    margin-bottom:16px;
+  }
+  header.site-header h1{
+    font-size:clamp(22px,4vw,32px);
+    margin:0 0 8px;
+    color:var(--ink);
+  }
+  header.site-header p{
+    margin:0;
+    color:var(--ink-soft);
+    font-size:15px;
+  }
+
+  /* Grade tabs */
+  .grade-tabs{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    flex-wrap:wrap;
+    margin:24px 0 14px;
+  }
+  .grade-tabs button{
+    border:2px solid var(--beige-dark);
+    background:var(--white);
+    color:var(--ink-soft);
+    padding:10px 20px;
+    border-radius:999px;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.15s;
+  }
+  .grade-tabs button:hover{ border-color:var(--rust-light); }
+  .grade-tabs button.active{
+    background:var(--rust);
+    border-color:var(--rust);
+    color:var(--white);
+  }
+
+  /* Section tabs */
+  .section-tabs{
+    display:flex;
+    justify-content:center;
+    gap:12px;
+    margin:18px 0 30px;
+  }
+  .section-tabs button{
+    flex:1;
+    max-width:320px;
+    padding:16px;
+    border-radius:18px;
+    border:2px solid var(--beige-dark);
+    background:var(--white);
+    font-size:15px;
+    font-weight:700;
+    color:var(--ink);
+    cursor:pointer;
+    box-shadow:var(--shadow);
+    transition:.15s;
+  }
+  .section-tabs button .sub{
+    display:block;
+    font-family:'Nunito',sans-serif;
+    font-weight:600;
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-top:4px;
+  }
+  .section-tabs button.active{
+    background:var(--beige);
+    border-color:var(--rust);
+  }
+
+  .panel{ display:none; }
+  .panel.active{ display:block; }
+
+  .card{
+    background:var(--white);
+    border:2px solid var(--beige-dark);
+    border-radius:20px;
+    padding:24px;
+    box-shadow:var(--shadow);
+    margin-bottom:20px;
+  }
+
+  .field{ margin-bottom:18px; }
+  .field label{
+    display:block;
+    font-weight:700;
+    font-size:14px;
+    margin-bottom:6px;
+    color:var(--ink);
+  }
+  .field .hint{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin-top:5px;
+  }
+  .field input[type=text], .field textarea{
+    width:100%;
+    font-family:'Nunito',sans-serif;
+    font-size:15px;
+    padding:12px 14px;
+    border-radius:12px;
+    border:2px solid var(--beige-dark);
+    background:var(--cream);
+    color:var(--ink);
+    resize:vertical;
+  }
+  .field input[type=text]:focus, .field textarea:focus{
+    outline:none;
+    border-color:var(--rust);
+  }
+
+  .grade-context{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:var(--beige);
+    border-radius:999px;
+    padding:6px 14px;
+    font-size:13px;
+    font-weight:700;
+    color:var(--rust-dark);
+    margin-bottom:18px;
+  }
+
+  /* Bloom level blocks */
+  .bloom-block{
+    margin-bottom:18px;
+  }
+  .bloom-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:8px;
+  }
+  .bloom-head .bloom-name{
+    font-family:'Unbounded',sans-serif;
+    font-weight:700;
+    font-size:14px;
+    color:var(--rust-dark);
+  }
+  .bloom-head .bloom-desc{
+    font-size:12.5px;
+    color:var(--ink-soft);
+  }
+  .btn-random{
+    display:block;
+    width:100%;
+    margin-top:14px;
+    padding:14px;
+    border:2px dashed var(--rust);
+    border-radius:14px;
+    background:var(--cream);
+    color:var(--rust-dark);
+    font-size:14px;
+    font-weight:700;
+    cursor:pointer;
+    transition:.15s;
+  }
+  .btn-random:hover{ background:var(--beige); }
+
+  /* Format grid */
+  .format-limit-note{
+    font-size:13px;
+    color:var(--ink-soft);
+    margin:0 0 14px;
+  }
+  .format-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(230px,1fr));
+    gap:12px;
+    margin-bottom:6px;
+  }
+  .format-card{
+    border:2px solid var(--beige-dark);
+    background:var(--cream);
+    border-radius:14px;
+    padding:13px 14px;
+    cursor:pointer;
+    transition:.12s;
+    position:relative;
+  }
+  .format-card:hover{ border-color:var(--rust-light); }
+  .format-card.selected{
+    border-color:var(--rust);
+    background:#FBE3D8;
+  }
+  .format-card.disabled{
+    opacity:.4;
+    cursor:not-allowed;
+  }
+  .format-card .fname{
+    font-weight:800;
+    font-size:13.5px;
+    margin-bottom:4px;
+    padding-right:22px;
+  }
+  .format-card .fdesc{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    line-height:1.4;
+  }
+  .format-card .check{
+    position:absolute;
+    top:12px;
+    right:12px;
+    width:18px;
+    height:18px;
+    border-radius:5px;
+    border:2px solid var(--beige-dark);
+    background:var(--white);
+    font-size:12px;
+    line-height:14px;
+    text-align:center;
+    color:var(--white);
+  }
+  .format-card.selected .check{
+    background:var(--rust);
+    border-color:var(--rust);
+  }
+
+  .btn-generate{
+    display:block;
+    width:100%;
+    margin-top:8px;
+    padding:15px;
+    border:none;
+    border-radius:14px;
+    background:var(--rust);
+    color:var(--white);
+    font-size:15px;
+    font-weight:700;
+    cursor:pointer;
+    transition:.15s;
+  }
+  .btn-generate:hover{ background:var(--rust-dark); }
+  .btn-generate:disabled{
+    background:var(--beige-dark);
+    color:var(--ink-soft);
+    cursor:not-allowed;
+  }
+
+  #output-panel{
+    display:none;
+    background:var(--ink);
+    color:var(--cream);
+    border-radius:20px;
+    padding:22px;
+    box-shadow:var(--shadow-lg);
+  }
+  #output-panel.active{ display:block; }
+  .output-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:12px;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .output-head h3{ margin:0; font-size:15px; color:var(--cream); }
+  .copy-btn{
+    background:var(--rust);
+    color:var(--white);
+    border:none;
+    padding:8px 16px;
+    border-radius:999px;
+    font-size:13px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .copy-btn:hover{ background:var(--rust-light); }
+  #output-text{
+    width:100%;
+    min-height:280px;
+    background:#1F1911;
+    color:#F5E9D6;
+    border:none;
+    border-radius:12px;
+    padding:16px;
+    font-family:'Nunito',sans-serif;
+    font-size:14px;
+    line-height:1.6;
+    white-space:pre-wrap;
+  }
+  .output-note{
+    font-size:12.5px;
+    color:#C8B79E;
+    margin-top:10px;
+  }
+
+  footer{
+    text-align:center;
+    color:var(--ink-soft);
+    font-size:12.5px;
+    margin-top:40px;
+  }
+
+  @media (max-width:560px){
+    .section-tabs{ flex-direction:column; }
+    .section-tabs button{ max-width:none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="site-header">
+    <div class="brand">FreshTeacher</div>
+    <h1>Конструктор промтов по грамматике</h1>
+    <p>Постер с правилом или рабочий лист — под класс, тему и нужный формат отработки</p>
+  </header>
+
+  <nav class="grade-tabs" id="gradeTabs">
+    <button data-grade="2">2 класс · 7–8 лет</button>
+    <button data-grade="3">3 класс · 8–9 лет</button>
+    <button data-grade="4">4 класс · 9–10 лет</button>
+  </nav>
+
+  <nav class="section-tabs" id="sectionTabs">
+    <button data-section="poster">🖼️ Постер с правилом<span class="sub">Таблицы, схемы, объяснение</span></button>
+    <button data-section="worksheet">📝 Рабочий лист<span class="sub">Задания на отработку — 1 или 2 листа</span></button>
+  </nav>
+
+  <main>
+
+    <!-- ===== SECTION 1: POSTER ===== -->
+    <section class="panel" id="poster-panel">
+      <div class="card">
+        <div class="grade-context" id="posterGradeContext"></div>
+
+        <div class="field">
+          <label for="posterTopic">Грамматическое правило / тема</label>
+          <input type="text" id="posterTopic" placeholder="Например: Present Simple, глагол to be, this/that/these/those">
+          <div class="hint">Формулируй как удобно — по-русски или по-английски, промт соберётся правильно.</div>
+        </div>
+
+        <div class="field">
+          <label for="posterExtra">Дополнительно (по желанию)</label>
+          <textarea id="posterExtra" rows="3" placeholder="Например: дети уже знают глагол to be; хочу маскота-дракончика на постере; нужен акцент на произношении -s"></textarea>
+        </div>
+
+        <button class="btn-generate" id="posterGenerateBtn">Собрать промт для постера</button>
+      </div>
+    </section>
+
+    <!-- ===== SECTION 2: WORKSHEET ===== -->
+    <section class="panel" id="worksheet-panel">
+      <div class="card">
+        <div class="grade-context" id="worksheetGradeContext"></div>
+
+        <div class="field">
+          <label for="worksheetTopic">Грамматическое правило / тема</label>
+          <input type="text" id="worksheetTopic" placeholder="Например: Plural nouns, Present Continuous, can/can't">
+        </div>
+
+        <div class="field">
+          <label>Форматы по уровням таксономии Блума</label>
+          <div class="hint" style="margin-bottom:10px;">Показаны только уровни, доступные детям этого возраста: запоминание → понимание → применение. Выбирай вручную в любом количестве — или собери случайный лист одной кнопкой.</div>
+          <p class="format-limit-note" id="formatLimitNote">Выбрано: 0</p>
+          <div id="formatGroups"></div>
+          <button class="btn-random" id="randomGenerateBtn" type="button">🎲 Собрать случайный лист — по 2 задания на каждый уровень</button>
+        </div>
+
+        <div class="field">
+          <label for="worksheetExtra">Дополнительно (по желанию)</label>
+          <textarea id="worksheetExtra" rows="3" placeholder="Например: слабая группа, нужно больше опоры; добавить забавного персонажа; тема урока — животные"></textarea>
+        </div>
+
+        <button class="btn-generate" id="worksheetGenerateBtn" disabled>Выбери хотя бы один формат</button>
+      </div>
+    </section>
+
+    <div id="output-panel">
+      <div class="output-head">
+        <h3 id="outputTitle">Готовый промт</h3>
+        <button class="copy-btn" id="copyBtn">Скопировать</button>
+      </div>
+      <textarea id="output-text" readonly></textarea>
+      <p class="output-note">Вставь этот промт в Claude или ChatGPT — на выходе получишь готовый текст постера / рабочего листа на английском.</p>
+    </div>
+
+  </main>
+
+  <footer>FreshTeacher · конструктор промтов для учителей английского в начальной школе</footer>
+</div>
+
+<script>
+(function(){
+
+  // ---------- DATA: 50 форматов отработки грамматики (не по темам, а по форме задания) ----------
+  const FORMATS = [
+    {id:"matching-pic", ru:"Сопоставление слово–картинка", desc:"Соединить слово или структуру с подходящей картинкой.", grades:[2], bloom:"remember"},
+    {id:"matching-halves", ru:"Сопоставление половин предложений", desc:"Соединить начало и конец предложения так, чтобы грамматика была верной.", grades:[3,4], bloom:"understand"},
+    {id:"circle-correct", ru:"Обведи правильный вариант", desc:"Обвести верную форму слова из 2-3 предложенных.", grades:[2,3], bloom:"remember"},
+    {id:"color-rule", ru:"Раскрась по правилу", desc:"Разные формы (например, с окончанием и без) закрашиваются разным цветом.", grades:[2], bloom:"remember"},
+    {id:"trace-copy", ru:"Обведи и спиши", desc:"Обвести образец по контуру, затем самостоятельно списать форму или предложение.", grades:[2], bloom:"remember"},
+    {id:"cut-glue-sort", ru:"Вырежи и наклей по группам", desc:"Карточки с формами вырезаются и распределяются по 2-3 колонкам.", grades:[2,3], bloom:"understand"},
+    {id:"true-false-pic", ru:"Верно / неверно по картинке", desc:"По картинке определить, верно ли утверждение с грамматической формой.", grades:[2,3], bloom:"understand"},
+    {id:"gapfill-bank", ru:"Вставь слово из рамки", desc:"Пропуски в предложениях заполняются словами из готового банка слов.", grades:[2,3], bloom:"understand"},
+    {id:"gapfill-open", ru:"Вставь нужную форму (без банка)", desc:"Самостоятельно образовать нужную форму слова и вставить в пропуск.", grades:[3,4], bloom:"apply"},
+    {id:"yesno-pic-qa", ru:"Вопрос-ответ по картинке (Yes/No)", desc:"По картинке задан вопрос — написать краткий ответ Yes/No.", grades:[2,3], bloom:"understand"},
+    {id:"look-write", ru:"Посмотри и напиши", desc:"Подписать картинку словом или короткой фразой с нужной формой.", grades:[2,3], bloom:"apply"},
+    {id:"sort-columns", ru:"Раздели на группы (таблица)", desc:"Распределить слова или предложения по колонкам таблицы.", grades:[2,3,4], bloom:"understand"},
+    {id:"odd-one-out", ru:"Лишнее слово", desc:"В строке из 4 слов/форм найти то, что не подходит по правилу.", grades:[2,3], bloom:"understand"},
+    {id:"memory-match", ru:"Игра-мемори на совпадение пар", desc:"Перевернуть карточки и найти пару: форма + перевод/картинка.", grades:[2,3], bloom:"remember"},
+    {id:"picture-dictation", ru:"Рисуночный диктант", desc:"Учитель читает предложения с нужной структурой, ученик рисует или раскрашивает по описанию.", grades:[2,3], bloom:"understand"},
+    {id:"board-game-roll", ru:"Настольная игра с фишкой", desc:"Бросить кубик, передвинуть фишку и составить предложение по картинке на клетке.", grades:[2,3,4], bloom:"apply"},
+    {id:"multiple-choice", ru:"Выбери правильный вариант (a/b/c)", desc:"Выбор одного правильного варианта из трёх предложенных.", grades:[3,4], bloom:"understand"},
+    {id:"word-order", ru:"Собери предложение из слов", desc:"Слова даны вразнобой — составить грамматически верное предложение.", grades:[3,4], bloom:"apply"},
+    {id:"table-conjugation", ru:"Заполни таблицу форм", desc:"Таблица форм (I/you/he/she...) заполняется недостающими словами.", grades:[3,4], bloom:"apply"},
+    {id:"complete-dialogue", ru:"Дополни диалог", desc:"В диалоге пропущены реплики с нужной конструкцией — вписать их.", grades:[3,4], bloom:"apply"},
+    {id:"qa-matching", ru:"Сопоставь вопрос и ответ", desc:"Соединить вопрос в нужной форме с логичным ответом.", grades:[3,4], bloom:"understand"},
+    {id:"sentence-cards", ru:"Собери предложение из карточек", desc:"Слова на отдельных карточках складываются в предложение и переписываются.", grades:[3,4], bloom:"apply"},
+    {id:"story-gapfill", ru:"Заполни пропуски в тексте", desc:"Короткий связный текст с пропусками на грамматическую тему.", grades:[3,4], bloom:"apply"},
+    {id:"comic-bubbles", ru:"Заполни реплики в комиксе", desc:"В облачках комикса не хватает реплик — дописать с нужной грамматикой.", grades:[3,4], bloom:"apply"},
+    {id:"class-survey", ru:"Опрос одноклассников", desc:"Задать вопрос трём одноклассникам и записать их ответы в таблицу.", grades:[3,4], bloom:"apply"},
+    {id:"crossword", ru:"Кроссворд на грамматические формы", desc:"Ответы в кроссворде — нужные грамматические формы слов.", grades:[3,4], bloom:"remember"},
+    {id:"wordsearch-use", ru:"Найди слово и составь предложение", desc:"Найти формы в сетке слов, затем использовать каждую в своём предложении.", grades:[3,4], bloom:"apply"},
+    {id:"domino-chain", ru:"Домино вопрос-ответ", desc:"Соединить карточки-домино так, чтобы ответ на одной подходил к вопросу на другой.", grades:[3,4], bloom:"understand"},
+    {id:"dice-sentence", ru:"Составь предложение по кубику", desc:"Каждая грань кубика задаёт часть предложения — собрать фразу.", grades:[3,4], bloom:"apply"},
+    {id:"picture-sequence", ru:"Расставь по порядку и опиши", desc:"Расставить картинки по порядку событий и подписать каждую предложением.", grades:[3,4], bloom:"apply"},
+    {id:"guess-who-riddle", ru:"Загадка Guess who/what", desc:"По описательным предложениям с нужной грамматикой угадать персонажа или предмет.", grades:[3,4], bloom:"understand"},
+    {id:"label-diagram", ru:"Подпиши схему предложениями", desc:"Части рисунка или схемы подписываются полным предложением, а не словом.", grades:[3,4], bloom:"apply"},
+    {id:"spot-difference", ru:"Найди отличия (сравнения)", desc:"По двум похожим картинкам написать предложения-сравнения.", grades:[4], bloom:"apply"},
+    {id:"transform-sentence", ru:"Преобразуй предложение", desc:"Утвердительное предложение переделать в отрицательное и в вопрос.", grades:[4], bloom:"apply"},
+    {id:"error-correction", ru:"Найди и исправь ошибку", desc:"В каждом предложении спрятана одна грамматическая ошибка — найти и исправить.", grades:[4], bloom:"apply"},
+    {id:"question-formation", ru:"Составь вопрос к ответу", desc:"Дан ответ — самостоятельно сформулировать вопрос, на который он отвечает.", grades:[4], bloom:"apply"},
+    {id:"sentence-combine", ru:"Объедини два предложения", desc:"Соединить два простых предложения в одно с помощью and/but/because.", grades:[4], bloom:"apply"},
+    {id:"timeline-sequence", ru:"Линия времени", desc:"Расположить события на временной шкале и описать их в нужном времени.", grades:[4], bloom:"apply"},
+    {id:"interview-cards", ru:"Карточки для интервью", desc:"Пара учеников по очереди задают друг другу вопросы с карточек и отвечают.", grades:[4], bloom:"apply"},
+    {id:"find-someone-who", ru:"Найди того, кто...", desc:"Пройти по классу и найти одноклассников, подходящих под грамматическое утверждение.", grades:[4], bloom:"apply"},
+    {id:"complete-rule", ru:"Дополни правило", desc:"Самостоятельно вписать пропущенные слова в формулировку грамматического правила.", grades:[4], bloom:"understand"},
+    {id:"grammar-auction", ru:"Грамматический аукцион", desc:"Читаются предложения — команды «покупают» те, что считают грамматически верными.", grades:[4], bloom:"understand"},
+    {id:"mini-quiz", ru:"Мини-тест с баллами", desc:"Короткий тест из 8-10 вопросов с подсчётом баллов в конце.", grades:[3,4], bloom:"remember"},
+    {id:"word-ladder", ru:"Цепочка форм (лесенка)", desc:"Слово меняет форму шаг за шагом — собирается лесенка форм.", grades:[4], bloom:"apply"},
+    {id:"postcard-letter", ru:"Дополни открытку или письмо", desc:"Короткая открытка другу с пропусками на нужную грамматику.", grades:[4], bloom:"apply"},
+    {id:"story-predict", ru:"Придумай продолжение истории", desc:"По началу истории дописать 2-3 предложения-продолжения с нужной формой.", grades:[4], bloom:"apply"},
+    {id:"sentence-race", ru:"Гонка предложений на время", desc:"За ограниченное время составить как можно больше верных предложений по образцу.", grades:[4], bloom:"apply"},
+    {id:"comparative-ladder", ru:"Лесенка сравнений", desc:"Ранжировать предметы или персонажей по признаку через comparative/superlative формы.", grades:[4], bloom:"apply"},
+    {id:"table-transform", ru:"Таблица-тренажёр (я/ты/он/она...)", desc:"Одна и та же фраза преобразуется под все местоимения в таблице.", grades:[3,4], bloom:"apply"},
+    {id:"rebus-sentence", ru:"Ребус-предложение (эмодзи → фраза)", desc:"Эмодзи и картинки-подсказки складываются в грамматически верное предложение.", grades:[2,3], bloom:"understand"}
+  ];
+
+  const GRADE_INFO = {
+    2:{age:"7–8", level:"Pre-A1 (уровень Starlight 2)"},
+    3:{age:"8–9", level:"Pre-A1+ (уровень Starlight 3)"},
+    4:{age:"9–10", level:"A1 (уровень Starlight 4)"}
+  };
+
+  // Первые три уровня таксономии Блума — единственные, доступные детям 7-10 лет
+  const BLOOM_ORDER = ["remember","understand","apply"];
+  const BLOOM_LEVELS = {
+    remember:{ru:"1. Запоминание", en:"Remember", desc:"узнать, вспомнить, воспроизвести форму"},
+    understand:{ru:"2. Понимание", en:"Understand", desc:"объяснить, сравнить, классифицировать"},
+    apply:{ru:"3. Применение", en:"Apply", desc:"использовать правило в новой ситуации"}
+  };
+
+  // ---------- STATE ----------
+  let state = {
+    grade: 2,
+    section: "poster",
+    selectedFormats: []
+  };
+
+  // ---------- DOM ----------
+  const gradeTabs = document.querySelectorAll("#gradeTabs button");
+  const sectionTabs = document.querySelectorAll("#sectionTabs button");
+  const posterPanel = document.getElementById("poster-panel");
+  const worksheetPanel = document.getElementById("worksheet-panel");
+  const posterGradeContext = document.getElementById("posterGradeContext");
+  const worksheetGradeContext = document.getElementById("worksheetGradeContext");
+  const formatGroups = document.getElementById("formatGroups");
+  const formatLimitNote = document.getElementById("formatLimitNote");
+  const worksheetGenerateBtn = document.getElementById("worksheetGenerateBtn");
+  const randomGenerateBtn = document.getElementById("randomGenerateBtn");
+  const outputPanel = document.getElementById("output-panel");
+  const outputText = document.getElementById("output-text");
+  const outputTitle = document.getElementById("outputTitle");
+  const copyBtn = document.getElementById("copyBtn");
+
+  function gradeLabel(g){ return g + " класс (" + GRADE_INFO[g].age + " лет)"; }
+
+  function updateGradeContexts(){
+    const label = "Класс: " + gradeLabel(state.grade) + " · " + GRADE_INFO[state.grade].level;
+    posterGradeContext.textContent = label;
+    worksheetGradeContext.textContent = label;
+  }
+
+  function formatsForGradeLevel(grade, bloom){
+    return FORMATS.filter(f => f.grades.includes(grade) && f.bloom === bloom);
+  }
+
+  function makeCard(f, isSelected){
+    const card = document.createElement("div");
+    card.className = "format-card" + (isSelected ? " selected" : "");
+    card.dataset.id = f.id;
+    card.innerHTML = '<div class="check">' + (isSelected ? "✓" : "") + '</div>' +
+      '<div class="fname">' + f.ru + '</div>' +
+      '<div class="fdesc">' + f.desc + '</div>';
+    card.addEventListener("click", () => toggleFormat(f.id));
+    return card;
+  }
+
+  function renderFormatGrid(){
+    formatGroups.innerHTML = "";
+    let totalAvailable = 0;
+    const perLevelCount = {};
+
+    BLOOM_ORDER.forEach(bloom => {
+      const list = formatsForGradeLevel(state.grade, bloom);
+      totalAvailable += list.length;
+      perLevelCount[bloom] = state.selectedFormats.filter(id => {
+        const f = FORMATS.find(x => x.id === id);
+        return f && f.bloom === bloom;
+      }).length;
+
+      const block = document.createElement("div");
+      block.className = "bloom-block";
+      const info = BLOOM_LEVELS[bloom];
+      block.innerHTML = '<div class="bloom-head">' +
+        '<span class="bloom-name">' + info.ru + ' (' + info.en + ')</span>' +
+        '<span class="bloom-desc">— ' + info.desc + '</span></div>';
+      const grid = document.createElement("div");
+      grid.className = "format-grid";
+      list.forEach(f => grid.appendChild(makeCard(f, state.selectedFormats.includes(f.id))));
+      block.appendChild(grid);
+      formatGroups.appendChild(block);
+    });
+
+    formatLimitNote.textContent =
+      "Выбрано: " + state.selectedFormats.length +
+      " (запоминание: " + perLevelCount.remember +
+      " · понимание: " + perLevelCount.understand +
+      " · применение: " + perLevelCount.apply +
+      ") · доступно форматов для этого класса: " + totalAvailable;
+
+    worksheetGenerateBtn.disabled = state.selectedFormats.length === 0;
+    worksheetGenerateBtn.textContent = state.selectedFormats.length === 0
+      ? "Выбери хотя бы один формат"
+      : "Собрать промт для рабочего листа";
+  }
+
+  function toggleFormat(id){
+    const idx = state.selectedFormats.indexOf(id);
+    if(idx > -1){
+      state.selectedFormats.splice(idx,1);
+    } else {
+      state.selectedFormats.push(id);
+    }
+    renderFormatGrid();
+  }
+
+  gradeTabs.forEach(btn => {
+    btn.addEventListener("click", () => {
+      state.grade = parseInt(btn.dataset.grade, 10);
+      gradeTabs.forEach(b => b.classList.toggle("active", b === btn));
+      state.selectedFormats = [];
+      updateGradeContexts();
+      renderFormatGrid();
+      outputPanel.classList.remove("active");
+    });
+  });
+
+  sectionTabs.forEach(btn => {
+    btn.addEventListener("click", () => {
+      state.section = btn.dataset.section;
+      sectionTabs.forEach(b => b.classList.toggle("active", b === btn));
+      posterPanel.classList.toggle("active", state.section === "poster");
+      worksheetPanel.classList.toggle("active", state.section === "worksheet");
+      outputPanel.classList.remove("active");
+    });
+  });
+
+  // ---------- PROMPT BUILDERS ----------
+  function buildPosterPrompt(){
+    const grade = state.grade;
+    const age = GRADE_INFO[grade].age;
+    const level = GRADE_INFO[grade].level;
+    const topic = document.getElementById("posterTopic").value.trim() || "[впиши грамматическое правило]";
+    const extra = document.getElementById("posterExtra").value.trim();
+    const extraBlock = extra ? ("\nДополнительно учти: " + extra + "\n") : "";
+
+    return "Роль: ты — CLIL-методист и дизайнер учебной визуализации грамматики английского языка для начальной школы, работаешь по стандартам подачи грамматики уровня CELTA/DELTA.\n\n" +
+"Контекст: постер для учеников " + gradeLabel(grade) + ", уровень примерно " + level + ". Грамматическая тема: \"" + topic + "\". Целевая аудитория — русскоязычные дети, поэтому учитывай типичную интерференцию родного языка при подаче правила." + extraBlock + "\n" +
+"Задача: разработай содержание постера по классической рамке подачи грамматики Form – Meaning – Use (форма – значение – употребление), а не в виде сплошного изложения правил.\n\n" +
+"Требования:\n" +
+"— весь текст на постере на английском языке, уровень языка соответствует CEFR-дескрипторам для этого класса\n" +
+"— Form: блок-схема построения структуры — по шагам, с цветовым кодированием элементов предложения (подлежащее / глагол / дополнение и т.д.)\n" +
+"— Meaning: короткий контекст или ситуация, которая объясняет, зачем и когда используется эта структура — не только форма, но и коммуникативный смысл\n" +
+"— Use: 4-5 примеров, объединённых одной мини-ситуацией или персонажем (контекстуализированные примеры, а не изолированные предложения)\n" +
+"— 2 Concept Checking Questions (CCQ) — простых вопроса на проверку понимания значения (Yes/No или выбор из двух), не на перевод\n" +
+"— блок \"Mind the trap!\" с конкретной ошибкой, которую типично делают русскоязычные дети именно с этой структурой (интерференция L1 — например, порядок слов, отсутствие/лишний глагол, категории, которых нет в русском)\n" +
+"— минимизируй метаязыковую нагрузку: не больше 1-2 новых терминов на постер, подходящих возрасту " + age + " лет\n" +
+"— структура должна быть готова к переносу в визуальный редактор (Canva / PowerPoint) или в промт для ИИ-генератора изображений\n\n" +
+"Формат ответа по пунктам:\n" +
+"1. Заголовок постера\n" +
+"2. Form — блок-схема построения\n" +
+"3. Meaning — контекст/ситуация употребления\n" +
+"4. Use — 4-5 примеров в мини-контексте\n" +
+"5. Check yourself — 2 CCQ\n" +
+"6. Mind the trap! — типичная ошибка русскоязычных детей\n" +
+"7. Короткая рекомендация по цветовому кодированию для дизайнера";
+  }
+
+  function buildWorksheetPrompt(){
+    const grade = state.grade;
+    const age = GRADE_INFO[grade].age;
+    const level = GRADE_INFO[grade].level;
+    const topic = document.getElementById("worksheetTopic").value.trim() || "[впиши грамматическое правило]";
+    const extra = document.getElementById("worksheetExtra").value.trim();
+    const extraBlock = extra ? ("\nДополнительно учти: " + extra + "\n") : "";
+
+    const chosen = FORMATS.filter(f => state.selectedFormats.includes(f.id));
+    const n = chosen.length;
+    const listFormats = chosen.map((f,i) => "— Лист " + (i+1) + " [" + BLOOM_LEVELS[f.bloom].ru + "]: формат «" + f.ru + "». " + f.desc).join("\n");
+
+    return "Роль: ты — методист по грамматике английского языка для начальной школы, выстраиваешь практику по принципу controlled → freer practice (PPP), с опорой на CLIL-подход.\n\n" +
+"Контекст: " + gradeLabel(grade) + ", уровень примерно " + level + ". Грамматическая тема: \"" + topic + "\". Целевая аудитория — русскоязычные дети, учитывай типичную интерференцию родного языка для этой структуры." + extraBlock + "\n" +
+"Задача: разработай отдельные рабочие листы на отработку этого правила — по одному листу для каждого формата ниже, соблюдая порядок от более контролируемой практики к более свободной (всего листов: " + n + "):\n" +
+listFormats + "\n\n" +
+"Требования к каждому листу:\n" +
+"— 6-10 заданий (или столько, сколько уместно именно для этого формата), сложность — под указанный класс\n" +
+"— все задания и инструкции для ученика на английском языке; инструкция — одно короткое предложение\n" +
+"— используй только знакомую ребёнку " + age + " лет лексику, без взрослых и абстрактных тем\n" +
+"— как минимум одно задание должно точечно тренировать типичную ошибку русскоязычных детей с этой структурой (интерференция L1)\n" +
+"— где уместно для формата — включи лексическую опору (word bank / picture cues) для более слабых учеников, не переусложняя задание\n" +
+"— в шапке первого листа сформулируй краткую цель в формате can-do (стиль CEFR/Cambridge): \"By the end of this practice, students can...\"\n" +
+"— оставь место под имя ученика и номер листа\n\n" +
+"Формат ответа: заголовок с can-do целью (для первого листа) → для каждого листа отдельно: заголовок → инструкция → пронумерованные задания. Без ключа ответов. Уровень по Блуму, указанный выше для каждого листа, — это ориентир только для тебя при подборе сложности; на самом листе для ученика его писать не нужно.";
+  }
+
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i = a.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function buildRandomWorksheetPrompt(){
+    const grade = state.grade;
+    const age = GRADE_INFO[grade].age;
+    const level = GRADE_INFO[grade].level;
+    const topic = document.getElementById("worksheetTopic").value.trim() || "[впиши грамматическое правило]";
+    const extra = document.getElementById("worksheetExtra").value.trim();
+    const extraBlock = extra ? ("\nДополнительно учти: " + extra + "\n") : "";
+
+    // по 2 случайных формата на каждый из 3 уровней, доступных этому классу
+    const picks = {};
+    BLOOM_ORDER.forEach(bloom => {
+      const pool = formatsForGradeLevel(grade, bloom);
+      picks[bloom] = shuffle(pool).slice(0, Math.min(2, pool.length));
+    });
+
+    const levelBlock = BLOOM_ORDER.map(bloom => {
+      const info = BLOOM_LEVELS[bloom];
+      const items = picks[bloom].map((f,i) => "  — Задание " + info.en + "-" + (i+1) + ": формат «" + f.ru + "». " + f.desc).join("\n");
+      return "Уровень " + info.ru + " (" + info.en + "):\n" + items;
+    }).join("\n\n");
+
+    return "Роль: ты — методист по грамматике английского языка для начальной школы, работающий на стыке таксономии Блума и принципа controlled → freer practice (PPP).\n\n" +
+"Контекст: " + gradeLabel(grade) + ", уровень примерно " + level + ". Грамматическая тема: \"" + topic + "\". Использованы только уровни таксономии, доступные детям этого возраста: Remember (запоминание), Understand (понимание), Apply (применение). Целевая аудитория — русскоязычные дети, учитывай типичную интерференцию родного языка для этой структуры." + extraBlock + "\n" +
+"Задача: собери один рабочий лист альбомной (горизонтальной) ориентации из 6 заданий — по два задания на каждый из трёх уровней. Прогрессия уровней Remember → Understand → Apply внутри каждой половины листа должна отражать переход от контролируемой практики к более свободной (PPP):\n\n" +
+levelBlock + "\n\n" +
+"Структура листа:\n" +
+"— лист делится на две одинаковые по логике половины (левая и правая колонка альбомного листа)\n" +
+"— в левой половине — по одному первому заданию с каждого уровня, в порядке Remember → Understand → Apply\n" +
+"— в правой половине — по одному второму заданию с каждого уровня, в том же порядке\n" +
+"— итого на весь лист: 2 половины × 3 задания = 6 заданий\n" +
+"— в каждом задании — 6 пунктов (предложений или примеров)\n\n" +
+"Требования:\n" +
+"— всё содержание заданий и инструкции — на английском языке, простыми словами, понятными ребёнку " + age + " лет\n" +
+"— инструкция к каждому заданию — одно короткое предложение\n" +
+"— как минимум одно задание уровня Apply должно точечно тренировать типичную ошибку русскоязычных детей с этой структурой (интерференция L1)\n" +
+"— в шапке листа сформулируй краткую цель в формате can-do (стиль CEFR/Cambridge): \"By the end of this practice, students can...\"\n" +
+"— оставь место под имя ученика и номер листа\n\n" +
+"Формат ответа: заголовок листа с can-do целью → Половина 1 (3 задания с инструкцией и 6 пунктами каждое) → Половина 2 (3 задания). Без ключа ответов. Названия уровней Блума (Remember/Understand/Apply) — ориентир только для тебя при подборе заданий и их сложности; на самом листе для ученика их писать не нужно.";
+  }
+
+  document.getElementById("posterGenerateBtn").addEventListener("click", () => {
+    outputTitle.textContent = "Готовый промт — постер с правилом";
+    outputText.value = buildPosterPrompt();
+    outputPanel.classList.add("active");
+    outputPanel.scrollIntoView({behavior:"smooth", block:"start"});
+  });
+
+  worksheetGenerateBtn.addEventListener("click", () => {
+    if(state.selectedFormats.length === 0) return;
+    outputTitle.textContent = "Готовый промт — рабочий лист";
+    outputText.value = buildWorksheetPrompt();
+    outputPanel.classList.add("active");
+    outputPanel.scrollIntoView({behavior:"smooth", block:"start"});
+  });
+
+  randomGenerateBtn.addEventListener("click", () => {
+    outputTitle.textContent = "Готовый промт — случайный лист по Блуму";
+    outputText.value = buildRandomWorksheetPrompt();
+    outputPanel.classList.add("active");
+    outputPanel.scrollIntoView({behavior:"smooth", block:"start"});
+  });
+
+  copyBtn.addEventListener("click", () => {
+    outputText.select();
+    outputText.setSelectionRange(0, 999999);
+    navigator.clipboard.writeText(outputText.value).then(() => {
+      const old = copyBtn.textContent;
+      copyBtn.textContent = "Скопировано ✓";
+      setTimeout(() => { copyBtn.textContent = old; }, 1600);
+    }).catch(() => {
+      document.execCommand("copy");
+    });
+  });
+
+  // ---------- INIT ----------
+  gradeTabs[0].classList.add("active");
+  sectionTabs[0].classList.add("active");
+  posterPanel.classList.add("active");
+  updateGradeContexts();
+  renderFormatGrid();
+
+})();
+</script>
+</body>
+</html>
